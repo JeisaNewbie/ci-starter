@@ -35,7 +35,7 @@ class News extends CI_Controller {
 
     public function create() 
     {
-        log_message('debug', '>>> create() method called');
+
         $this->load->helper('form');
         $this->load->library('form_validation');
 
@@ -55,5 +55,7 @@ class News extends CI_Controller {
             $this->news_model->set_news();
             $this->load->view('news/success');
         }
+        
     }
+    
 }

@@ -1,0 +1,56 @@
+/* 전체 폼 영역 */
+form {
+  width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #fdfdfd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  font-family: 'Arial', sans-serif;
+}
+
+/* 라벨 스타일 */
+form label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* input, textarea 공통 스타일 */
+form input[type="input"],
+form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+/* textarea 높이 조정 */
+form textarea {
+  height: 120px;
+  resize: vertical;
+}
+
+/* 버튼 스타일 */
+form input[type="submit"] {
+  margin-top: 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* 버튼 hover 효과 */
+form input[type="submit"]:hover {
+  background-color: #45a049;
+}
