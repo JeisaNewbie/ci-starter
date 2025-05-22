@@ -2,7 +2,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <?php echo link_tag('public_html/css/index.css'); ?>
+  <?php echo link_tag('/public_html/css/index.css'); ?>
   <title>게시판</title>
 </head>
 

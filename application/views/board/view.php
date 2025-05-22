@@ -1,4 +1,4 @@
-<?php echo link_tag('public_html/css/view.css'); ?>
+<?php echo link_tag('/public_html/css/view.css'); ?>
 
 <!-- <?php echo validation_errors(); ?> -->
 

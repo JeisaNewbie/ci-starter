@@ -14,7 +14,9 @@ class Board extends CI_Controller
 
     public function index($num = 10, $page = 1)
     {
-        $data['board'] = $this->board_model->get_board(NULL, NULL, $num, $page);
+        // 재귀 쿼리를 통한 계층 목록 조회
+        $data['board'] = $this->board_model->get_board_index($num, $page);
+
         $data['page_num'] = $this->board_model->get_total_page($num);
         $data['num'] = $num;
         $this->load->view('board/index', $data);
@@ -22,7 +24,7 @@ class Board extends CI_Controller
 
     public function view($id = NULL, $group_id = NULL)
     {
-        $data['board'] = $this->board_model->get_board($id, $group_id);
+        $data['board'] = $this->board_model->get_board_view($id);
         
         if (empty($data['board']))
         {
