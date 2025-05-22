@@ -205,6 +205,19 @@ class MY_Model extends CI_Model
         return "DELETE FROM " . $table . $where;
     }
 
+    public static function getSoftDeleteQuery($table, $aWhere = array())
+    {
+        $where = " WHERE ";
+        if (empty($aWhere)) return;
+
+        foreach ($aWhere as $field => $value) {
+            $where .= $field . " = " . self::checkValue($value) . " AND ";
+        }
+        $where = rtrim($where, " AND ");
+
+        return "UPDATE ". $table . " SET status = 'INACTIVE'" . $where; 
+    }
+
 
     private static function checkValue($value)
     {

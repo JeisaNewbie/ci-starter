@@ -5,6 +5,10 @@ body {
     padding: 20px;
 }
 
+a {
+    text-decoration: none;
+}
+
 #board_area {
     width: 900px;
     margin: 0 auto;
@@ -75,4 +79,8 @@ h4 {
 
 #write_btn button:hover {
     background-color: #0056b3;
+}
+
+.btx_box {
+    text-align: center !important;
 }
