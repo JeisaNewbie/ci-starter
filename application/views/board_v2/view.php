@@ -11,8 +11,12 @@
 
 <body>
   <div class="main">
+    <div style="width: 100%; height: 30px; font-size:x-large; text-align:center">
+      <a href="<?php echo "/board_v2" ?>">자유게시판</a>
+    </div>
     <h2><?php echo  $board[0]['group_id'] . ". " . $board[0]['title']; ?></h2>
     <hr>
+    <h3 style="text-align: center;">원글 입니다.</h3>
     <div class="post-container-origin">
       <div class="post-content"><?php echo $board[0]['content']; ?></div>
     </div>
@@ -27,7 +31,7 @@
       $count -= 1;
       for ($i = 0; $i < $count; $i++): ?>
         <div class="post-container-answer">
-          <?php if ($i == $count - 1) echo "원글 입니다." ?>
+          <?php if ($i == $count - 1) echo "현재 글 입니다.<hr>" ?>
           <div class="post-content"><?php echo $board[$i]['content']; ?></div>
         </div>
       <?php endfor ?>
@@ -56,14 +60,6 @@
           </form>
         </div>
       </div>
-      <details>
-        <summary>답글 달기</summary>
-        <form action="<?= site_url('board_v2/set_content/' . $id) ?>" method="post" style="display:inline;">
-          <label for="content">답글</label>
-          <textarea name="content"></textarea><br />
-          <button type="submit">답글 달기</button>
-        </form>
-      </details>
     </div>
     <hr style="margin: 20px auto 20px auto;">
     <div class="post-container-reply">
