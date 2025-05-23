@@ -52,9 +52,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // $route['default_controller'] = 'main';
 // $route['404_override'] = '';
 // $route['translate_uri_dashes'] = FALSE;
+
 $route['board/create'] = 'board/create';
 $route['board/(:any)'] = 'board/view/$1';
 $route['board'] = 'board';
+
+
+$route['board_v2/create'] = 'board_v2/create';
+$route['board_v2/(:any)'] = 'board_v2/view/$1';
+$route['board_v2'] = 'board_v2';
 
 $route['news/create'] = 'news/create';
 $route['news/(:any)'] = 'news/view/$1';

@@ -1,7 +1,7 @@
 <?php
-class Board_model extends My_Model
+class Board_model_v2 extends My_Model
 {
-
+    const TABLE_NAME = 'board_ns';
     public function __construct()
     {
         $this->load->database();
@@ -9,7 +9,7 @@ class Board_model extends My_Model
 
     public function get_total_page($num)
     {
-        $data = $this->db->count_all('board');
+        $data = $this->db->count_all('board_ns');
         return (int)(($data % $num) > 0 ? ($data / $num) + 1 : ($data / $num));
     }
 
@@ -20,20 +20,10 @@ class Board_model extends My_Model
         $from_to = array($offset, (int)$num);
 
         $query = $this->db->query(
-            'WITH recursive cte AS(
-                SELECT id, group_id, title, parent_id, depth, CAST(id AS CHAR(100)) lvl, status, created_at
-                FROM board
-                WHERE parent_id IS NULL
-                UNION ALL
-                SELECT b.id, b.group_id, b.title, b.parent_id, b.depth, CONCAT(cte.lvl, ",", b.id) lvl, b.status, b.created_at
-                FROM board b
-                INNER JOIN cte
-                ON b.parent_id = cte.id
-                ) SELECT id, group_id, CONCAT(REPEAT("Re::", depth), title) AS title, parent_id, depth, lvl, status, created_at
-                FROM cte
-                ORDER BY group_id DESC, lvl
-                LIMIT ?, ?;',
-            $from_to
+            'SELECT id, group_id, CONCAT(REPEAT("Re::", depth), title) AS title, parent_id, depth, status, created_at
+            FROM board_ns
+            ORDER BY group_id DESC, l_value ASC
+            LIMIT ?, ?;', $from_to
         );
 
         $data = $query->result_array();
@@ -54,11 +44,11 @@ class Board_model extends My_Model
         $query = $this->db->query(
             'WITH recursive cte AS (
             SELECT  *
-            FROM    board
+            FROM    board_ns
             WHERE   id = ?
             UNION ALL
             SELECT	b.*
-            FROM board b
+            FROM board_ns b
             INNER JOIN cte ON b.id = cte.parent_id) SELECT * FROM cte ORDER BY depth;',
             $id
         );
@@ -80,49 +70,67 @@ class Board_model extends My_Model
         $data = array(
             'title' => $this->input->post('title'),
             'content' => $this->input->post('content'),
-            'status' => 'ACTIVE',
             'parent_id' => NULL,
-            'group_order' => 0,
             'depth' => 0,
+            'l_value' => 1,
+            'r_value' => 2,
             'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
+            'status' => 'ACTIVE'
         );
 
-        $this->db->insert('board', $data);
+        $this->db->insert('board_ns', $data);
         $insert_id = $this->db->insert_id();
         // 쿼리 빌더로 수정
-        return $this->db->query('UPDATE board SET group_id = id WHERE id = ' . $insert_id);
+        return $this->db->query('UPDATE board_ns SET group_id = id WHERE id = ?', $insert_id);
     }
 
-    public function set_content($id, $group_id)
+    // ToDo: 메서드 명 변경 필요
+    public function set_content($id)
     {
 
         $attributes = array('id' => $id);
 
-        $query = $this->db->get_where('board', $attributes);
+        $query = $this->db->get_where('board_ns', $attributes);
 
         $row = $query->row_array();
 
+        $new_left = $row['r_value'];
+        $new_right = $new_left + 1;
+        
         $data = array(
             'title' => $row['title'],
             'content' => $this->input->post('content'),
-            'status' => 'AVTIVE',
             'parent_id' => $id,
             'group_id' => $row['group_id'],
-            'group_order' => $row['group_order'] + 1, // db 조회 후 parent의 order + 1
-            'depth' => $row['depth'] + 1, // db 조회 후 parent의 depth + 1
+            'depth' => $row['depth'] + 1,
+            'l_value' => $new_left,
+            'r_value' => $new_right,
             'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
+            'status' => 'AVTIVE'
         );
 
-        $this->db->insert('board', $data);
+        $where_attr_left = array('l_value >=' => $new_right, 'group_id' => $row['group_id']);
+        $where_attr_right = array('r_value >=' => $new_left, 'group_id' => $row['group_id']);
+
+        $this->db->set('l_value', 'l_value + 2', FALSE);
+        $this->db->where($where_attr_left);
+        $this->db->update('board_ns');
+
+        $this->db->set('r_value', 'r_value + 2', FALSE);
+        $this->db->where($where_attr_right);
+        $this->db->update('board_ns');
+
+        $this->db->insert('board_ns', $data);
         $insert_id = $this->db->insert_id();
+
         return $insert_id;
     }
 
     public function delete_board($id)
     {
-        $query = $this->getSoftDeleteQuery('board', array('id' => $id));
+        $query = $this->getSoftDeleteQuery('board_ns', array('id' => $id));
 
         log_message('error', $this->db->query($query));
     }

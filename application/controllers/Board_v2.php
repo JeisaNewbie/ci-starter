@@ -1,10 +1,10 @@
 <?php
-class Board extends CI_Controller
+class Board_v2 extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('board_model_v1');
+        $this->load->model('board_model_v2');
         $this->load->helper('html');
         $this->load->library('form_validation');
         $this->load->helper('form');
@@ -14,24 +14,23 @@ class Board extends CI_Controller
 
     public function index($num = 10, $page = 1)
     {
-        // 재귀 쿼리를 통한 계층 목록 조회
-        $data['board'] = $this->board_model_v1->get_board_index($num, $page);
+        $data['board'] = $this->board_model_v2->get_board_index($num, $page);
 
-        $data['page_num'] = $this->board_model_v1->get_total_page($num);
+        $data['page_num'] = $this->board_model_v2->get_total_page($num);
         $data['num'] = $num;
-        $this->load->view('board/index', $data);
+        $this->load->view('board_v2/index', $data);
     }
 
     public function view($id = NULL)
     {
-        $data['board'] = $this->board_model_v1->get_board_view($id);
+        $data['board'] = $this->board_model_v2->get_board_view($id);
         
         if (empty($data['board']))
         {
             show_404();
         }
 
-        $this->load->view('board/view', $data);
+        $this->load->view('board_v2/view', $data);
     }
 
     public function create() 
@@ -41,25 +40,25 @@ class Board extends CI_Controller
 
         if ($this->form_validation->run() === FALSE)
         {
-            $this->load->view('board/create');
+            $this->load->view('board_v2/create');
         }
         else
         {
-            $this->board_model_v1->set_board();
-            redirect('board');
+            $this->board_model_v2->set_board();
+            redirect('board_v2');
         }
     }
 
     public function set_comment($id = NULL, $group_id = NULL)
     {
-        $insert_id = $this->board_model_v1->set_content($id, $group_id);
-        redirect('board/view/' .  $insert_id);
+        $insert_id = $this->board_model_v2->set_content($id, $group_id);
+        redirect('board_v2/view/' .  $insert_id);
     }
 
     public function delete($id = NULL)
     {
         /* TODO: 유저 권한 확인 */
-        $this->board_model_v1->delete_board($id);
-        redirect('board');
+        $this->board_model_v2->delete_board($id);
+        redirect('board_v2');
     }
 }

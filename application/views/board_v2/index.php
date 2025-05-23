@@ -11,7 +11,7 @@
     <h1>자유게시판</h1>
     <h4>자유롭게 글을 쓸 수 있는 게시판입니다.</h4>
     <div id="write_btn">
-      <a href="board/create"><button>글쓰기</button></a>
+      <a href="/board_v2/create"><button>글쓰기</button></a>
     </div>
     <table class="list-table">
       <thead>
@@ -30,7 +30,7 @@
           <tr>
             <td width="70"><?php echo $board_item['group_id'] ?></td>
             <td width="500">
-              <a href="<?php echo "/board/view/" . $board_item['id'] ?>">
+              <a href="<?php echo "/board_v2/view/" . $board_item['id'] ?>">
                 <?php echo str_repeat("&emsp;", $board_item['depth']) . $board_item['title'] ?>
               </a>
             </td>
@@ -45,7 +45,7 @@
       $current_page = ($page_num <= 10 ? $page_num : 10);
       for ($i = 1, $j = $num; $i <= $current_page; $i++) 
       {
-        echo "<a href=\"/board/index/$j/$i\">$i </a>";
+        echo "<a href=\"/board_v2/index/$j/$i\">$i </a>";
       }
       ?>
       <button onclick="after()">다음</button>
@@ -63,7 +63,7 @@
   document.getElementById('pageLimitSelector').addEventListener('change', function() {
     const limit = this.value;
     const page = 1;
-    window.location.href = `/board/index/${limit}/${page}`;
+    window.location.href = `/board_v2/index/${limit}/${page}`;
   });
 
   function before() {
