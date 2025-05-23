@@ -49,9 +49,9 @@ class Board_v2 extends CI_Controller
         }
     }
 
-    public function set_comment($id = NULL, $group_id = NULL)
+    public function set_content($id = NULL)
     {
-        $insert_id = $this->board_model_v2->set_content($id, $group_id);
+        $insert_id = $this->board_model_v2->set_content($id);
         redirect('board_v2/view/' .  $insert_id);
     }
 

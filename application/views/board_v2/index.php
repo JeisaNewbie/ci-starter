@@ -2,7 +2,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <?php echo link_tag('/public_html/css/index.css'); ?>
+  <?php echo link_tag('/assets/css/index.css'); ?>
+  <script defer src="/assets/js/v2/index.js"></script>
   <title>게시판</title>
 </head>
 
@@ -41,10 +42,9 @@
     </table>
     <div id="write_btn" class="btx_box">
       <button onclick="before()">이전</button>
-      <?php 
+      <?php
       $current_page = ($page_num <= 10 ? $page_num : 10);
-      for ($i = 1, $j = $num; $i <= $current_page; $i++) 
-      {
+      for ($i = 1, $j = $num; $i <= $current_page; $i++) {
         echo "<a href=\"/board_v2/index/$j/$i\">$i </a>";
       }
       ?>
@@ -59,22 +59,4 @@
     </div>
   </div>
 </body>
-<script>
-  document.getElementById('pageLimitSelector').addEventListener('change', function() {
-    const limit = this.value;
-    const page = 1;
-    window.location.href = `/board_v2/index/${limit}/${page}`;
-  });
-
-  function before() {
-    alert('hello!');
-  };
-
-  function after() {
-    if ($page_num < 10)
-      return;
-    $page_num -= 10;
-    return $page_num <= 10 ? $page_num : 10;
-  };
-</script>
 </html>

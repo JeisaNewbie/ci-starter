@@ -1,4 +1,4 @@
-<?php echo link_tag('public_html/css/create.css'); ?>
+<?php echo link_tag('assets/css/create.css'); ?>
 <?php echo validation_errors(); ?>
 
 <?php echo form_open('board_v2/create') ?>
