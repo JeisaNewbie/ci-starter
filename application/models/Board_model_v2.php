@@ -7,13 +7,17 @@ class Board_model_v2 extends My_Model
         $this->load->database();
     }
 
-    public function get_total_page($num)
+    public function get_total_page($num, $table, $where = array())
     {
-        $data = $this->db->count_all('board_ns');
+        if ($where !== NULL)
+        {
+            $this->db->where($where);
+        }
+        $data = $this->db->count_all($table);
         return (int)(($data % $num) > 0 ? ($data / $num) + 1 : ($data / $num));
     }
 
-    public function get_board_index($num = NULL, $page = NULL)
+    public function get_board_index($num, $page)
     {
         /* 전체 글 조회 */
         $offset = $num * ($page - 1);
@@ -126,6 +130,43 @@ class Board_model_v2 extends My_Model
         $insert_id = $this->db->insert_id();
 
         return $insert_id;
+    }
+
+    public function get_comment($id, $num, $page)
+    {
+        $offset = $num * ($page - 1);
+        $from_to = array($id, $offset, (int)$num);
+
+        $query = $this->db->query(
+            'SELECT * FROM comment
+            WHERE board_ns_id = ?
+            ORDER BY created_at DESC
+            LIMIT ?, ?;', $from_to 
+        );
+        
+        $data = $query->result_array();
+
+        // ToDo: 메서드 추출
+        foreach ($data as &$data_item) {
+            if ($data_item['status'] === 'INACTIVE') {
+                $data_item['title'] = '삭제된 게시글입니다.';
+                $data_item['content'] = '삭제된 게시글입니다.';
+            }
+        }
+        return $data;
+    }
+
+    public function set_comment($id)
+    {
+        $data = array(
+            'board_ns_id' => $id,
+            'comment' => $this->input->post('comment'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'status' => 'ACTIVE'
+        );
+
+        $this->db->insert('comment', $data);
     }
 
     public function delete_board($id)

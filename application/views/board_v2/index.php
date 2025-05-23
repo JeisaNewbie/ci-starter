@@ -32,7 +32,12 @@
             <td width="70"><?php echo $board_item['group_id'] ?></td>
             <td width="500">
               <a href="<?php echo "/board_v2/view/" . $board_item['id'] ?>">
-                <?php echo str_repeat("&emsp;", $board_item['depth']) . $board_item['title'] ?>
+                <?php
+                // 수정 필요
+                $str = str_repeat("&emsp;", $board_item['depth']) . $board_item['title'];
+                $str = strlen($str) > 20 ? str_replace(substr($str, 100), "...", $str): $str;
+                echo $str
+                ?>
               </a>
             </td>
             <td width="120"><?php echo $board_item['created_at'] ?></td>

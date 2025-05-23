@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>자유게시판</title>
   <script defer src="/assets/js/v2/view.js"></script>
   <?php echo link_tag('/assets/css/view.css'); ?>
 </head>
@@ -27,12 +27,12 @@
       $count = count($board);
       $id = $board[$count - 1]['id'];
       $group_id = $board[$count - 1]['group_id'];
-      $board = array_slice($board, 1);
+      $tmp_board = array_slice($board, 1);
       $count -= 1;
       for ($i = 0; $i < $count; $i++): ?>
         <div class="post-container-answer">
           <?php if ($i == $count - 1) echo "현재 글 입니다.<hr>" ?>
-          <div class="post-content"><?php echo $board[$i]['content']; ?></div>
+          <div class="post-content"><?php echo $tmp_board[$i]['content']; ?></div>
         </div>
       <?php endfor ?>
       <!-- Content 출력 종료 -->
@@ -62,8 +62,10 @@
       </div>
     </div>
     <hr style="margin: 20px auto 20px auto;">
-    <div class="post-container-reply">
-      댓글창이에요!! 비동기 적용 예정!!
+    <div class="post-container-comment">
+      <button onclick="return open_comment(<?= $id ?>, 20, 1);">댓글창 열기</button>
+      <button onclick="return close_comment();">댓글창 닫기</button>
+      <div id="comment"></div>
     </div>
   </div>
 </body>
