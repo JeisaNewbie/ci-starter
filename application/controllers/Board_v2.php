@@ -15,10 +15,28 @@ class Board_v2 extends CI_Controller
     public function index($num = 10, $page = 1)
     {
         $data['board'] = $this->board_model_v2->get_board_index($num, $page);
-
-        $data['page_num'] = $this->board_model_v2->get_total_page($num, 'board_ns', NULL);
+        $data['pages'] = $this->get_pages($num, $page, 'board_ns');
         $data['num'] = $num;
+        
         $this->load->view('board_v2/index', $data);
+    }
+
+    private function get_pages($num = 10, $page = 1, $table, $where = NULL)
+    {
+        $data['page_num'] = $this->board_model_v2->get_page_num($num, $table, $where);
+
+        $quotient = (int)($page / 10);
+        $mod = $page % 10;
+        
+        $data['start_page'] = $mod == 0 ? $quotient * 10 + 1 - 10: $quotient * 10 + 1;
+        $data['end_page'] = $mod == 0 ? $quotient * 10 : $quotient * 10 + 10;
+        $data['end_page'] = $data['end_page'] > $data['page_num'] ? $data['page_num'] : $data['end_page'];
+
+        $data['before'] = ($page - 10 < 1 ? 1 : $page - 10);
+        $data['after'] = ($page + 10 > $data['page_num'] ? $data['page_num'] : $page + 10);
+ 
+
+        return $data;
     }
 
     public function view($id = NULL)
@@ -59,13 +77,9 @@ class Board_v2 extends CI_Controller
     {
         $data['comments'] = $this->board_model_v2->get_comment($id, $num, $page);
 
-        $data['page_num'] = $this->board_model_v2->get_total_page($num, 'comment', array('board_ns_id' => $id));
-        $data['num'] = $num;
-        log_message('error', "get_comment");
+        $data['pages'] =$this->get_pages($num, $page, 'comment', array('board_ns_id' => $id));
+        $data['num'] = $this->board_model_v2->get_data_num('comment', array('board_ns_id' => $id));
         
-        /* Ajax 응답 */
-        // return $this->output->;
-        // echo $data;
         $this->output
         ->set_content_type('application/json')
         ->set_output(json_encode($data));

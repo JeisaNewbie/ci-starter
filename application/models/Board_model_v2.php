@@ -7,14 +7,23 @@ class Board_model_v2 extends My_Model
         $this->load->database();
     }
 
-    public function get_total_page($num, $table, $where = array())
+    public function get_page_num($num, $table, $where = array())
+    {
+        $page = $this->get_data_num($table, $where);
+        $mod = $page % $num;
+        $page = (int)($page / $num);
+
+        return (($page > 0) && ($mod > 0)) ? $page + 1 : $page;
+    }
+
+    public function get_data_num($table, $where = array())
     {
         if ($where !== NULL)
         {
             $this->db->where($where);
         }
-        $data = $this->db->count_all($table);
-        return (int)(($data % $num) > 0 ? ($data / $num) + 1 : ($data / $num));
+
+        return $this->db->count_all_results($table);
     }
 
     public function get_board_index($num, $page)

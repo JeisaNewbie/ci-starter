@@ -46,20 +46,19 @@
       <?php endforeach ?>
     </table>
     <div id="write_btn" class="btx_box">
-      <button onclick="before()">이전</button>
+      <button onclick="location.href = `/board_v2/index/${<?= $num ?>}/${<?= $pages['before'] ?>}`">이전</button>
       <?php
-      $current_page = ($page_num <= 10 ? $page_num : 10);
-      for ($i = 1, $j = $num; $i <= $current_page; $i++) {
-        echo "<a href=\"/board_v2/index/$j/$i\">$i </a>";
+      for ($i = $pages['start_page']; $i <= $pages['end_page']; $i++) {
+        echo "<a href=\"/board_v2/index/$num/$i\">$i </a>";
       }
       ?>
-      <button onclick="after()">다음</button>
+      <button onclick="location.href = `/board_v2/index/${<?= $num ?>}/${<?= $pages['after'] ?>}`">다음</button>
       <select id="pageLimitSelector">
-        <option value="1" <?= $j == 1 ? 'selected' : '' ?>>1</option>
-        <option value="10" <?= $j == 10 ? 'selected' : '' ?>>10</option>
-        <option value="20" <?= $j == 20 ? 'selected' : '' ?>>20</option>
-        <option value="50" <?= $j == 50 ? 'selected' : '' ?>>50</option>
-        <option value="100" <?= $j == 100 ? 'selected' : '' ?>>100</option>
+        <option value="1" <?= $num == 1 ? 'selected' : '' ?>>1</option>
+        <option value="10" <?= $num == 10 ? 'selected' : '' ?>>10</option>
+        <option value="20" <?= $num == 20 ? 'selected' : '' ?>>20</option>
+        <option value="50" <?= $num == 50 ? 'selected' : '' ?>>50</option>
+        <option value="100" <?= $num == 100 ? 'selected' : '' ?>>100</option>
       </select>
     </div>
   </div>

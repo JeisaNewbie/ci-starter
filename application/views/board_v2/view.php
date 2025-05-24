@@ -63,7 +63,7 @@
     </div>
     <hr style="margin: 20px auto 20px auto;">
     <div class="post-container-comment">
-      <button onclick="return open_comment(<?= $id ?>, 20, 1);">댓글창 열기</button>
+      <button onclick="return open_comment(<?= $id ?>, 10, 1);">댓글창 열기</button>
       <button onclick="return close_comment();">댓글창 닫기</button>
       <div id="comment"></div>
     </div>
