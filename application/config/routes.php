@@ -59,6 +59,9 @@ $route['board'] = 'board';
 
 
 $route['board_v2/create'] = 'board_v2/create';
+$route['board_v2/login'] = 'board_v2/login';
+$route['board_v2/logout'] = 'board_v2/logout';
+$route['board_v2/create_account'] = 'board_v2/create_account';
 $route['board_v2/(:any)'] = 'board_v2/view/$1';
 $route['board_v2'] = 'board_v2';
 

@@ -1,3 +1,4 @@
+<?php echo validation_errors(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -65,6 +66,8 @@
     <div class="post-container-comment">
       <button onclick="return open_comment(<?= $id ?>, 10, 1);">댓글창 열기</button>
       <button onclick="return close_comment();">댓글창 닫기</button>
+      <button onclick="return update_board(<?= $id ?>);" type="button">수정</button>
+      <button onclick="return delete_board(<?= $id ?>);" type="button">삭제</button>
       <div id="comment"></div>
     </div>
   </div>

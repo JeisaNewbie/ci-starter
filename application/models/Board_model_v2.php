@@ -7,6 +7,60 @@ class Board_model_v2 extends My_Model
         $this->load->database();
     }
 
+    public function create_account()
+    {
+        $id = $this->input->post('id');
+        $password = $this->input->post('password');
+        $username = $this->input->post('username');
+
+        $check = $this->db->select('user_id')
+            ->from('users')
+            ->where('user_id', $id)
+            ->get();
+
+        if ($check->num_rows() > 0) {
+            log_message('error', $check->num_rows());
+            return FALSE;
+        }
+
+        $data = array(
+            'user_id' => $id,
+            'password' => $password,
+            'username' => $username
+        );
+
+        $this->db->insert('users', $data);
+        return TRUE;
+    }
+
+    public function login()
+    {
+        log_message('error', 'board_model_v2 login');
+        $id = $this->input->post('id');
+        $password = $this->input->post('password');
+
+        $check = $this->db->select('id, user_id, password, username')
+            ->from('users')
+            ->where('user_id', $id)
+            ->get();
+
+        $row = $check->row(0);
+
+        if ($row === NULL) {
+            log_message('error', $check->num_rows());
+            return NULL;
+        }
+
+        if ($password !== $row->password) {
+            return NULL;
+        }
+
+        return array(
+            'id' => $row->id,
+            'username' => $row->username
+        );
+    }
+
     public function get_page_num($num, $table, $where = array())
     {
         $page = $this->get_data_num($table, $where);
@@ -18,28 +72,31 @@ class Board_model_v2 extends My_Model
 
     public function get_data_num($table, $where = array())
     {
-        if ($where !== NULL)
-        {
+        if ($where !== NULL) {
             $this->db->where($where);
         }
 
         return $this->db->count_all_results($table);
     }
 
-    public function get_board_index($num, $page)
+    public function get_board_index($search, $num, $page)
     {
         /* 전체 글 조회 */
+        //CONCAT(REPEAT("--", depth), title) AS 
         $offset = $num * ($page - 1);
-        $from_to = array($offset, (int)$num);
 
-        $query = $this->db->query(
-            'SELECT id, group_id, CONCAT(REPEAT("Re::", depth), title) AS title, parent_id, depth, status, created_at
-            FROM board_ns
-            ORDER BY group_id DESC, l_value ASC
-            LIMIT ?, ?;', $from_to
-        );
+        $this->db->select('id, group_id, title, parent_id, depth, status, created_at');
+        $this->db->from('board_ns');
 
-        $data = $query->result_array();
+        if ($search !== '') {
+            $this->db->like('title', $search);
+        }
+
+        $this->db->order_by('group_id', 'DESC');
+        $this->db->order_by('l_value', 'ASC');
+        $this->db->limit($num, $offset);
+
+        $data = $this->db->get()->result_array();
 
         // ToDo: 메서드 추출
         foreach ($data as &$data_item) {
@@ -80,7 +137,14 @@ class Board_model_v2 extends My_Model
 
     public function set_board()
     {
+        $user_id = $this->validate_user();
+
+        if ($user_id === FALSE) {
+            return FALSE;
+        }
+
         $data = array(
+            'user_id' => $user_id,
             'title' => $this->input->post('title'),
             'content' => $this->input->post('content'),
             'parent_id' => NULL,
@@ -101,6 +165,11 @@ class Board_model_v2 extends My_Model
     // ToDo: 메서드 명 변경 필요
     public function set_content($id)
     {
+        $user_id = $this->validate_user();
+
+        if ($user_id === FALSE) {
+            return FALSE;
+        }
 
         $attributes = array('id' => $id);
 
@@ -110,8 +179,9 @@ class Board_model_v2 extends My_Model
 
         $new_left = $row['r_value'];
         $new_right = $new_left + 1;
-        
+
         $data = array(
+            'user_id' => $user_id,
             'title' => $row['title'],
             'content' => $this->input->post('content'),
             'parent_id' => $id,
@@ -150,9 +220,10 @@ class Board_model_v2 extends My_Model
             'SELECT * FROM comment
             WHERE board_ns_id = ?
             ORDER BY created_at DESC
-            LIMIT ?, ?;', $from_to 
+            LIMIT ?, ?;',
+            $from_to
         );
-        
+
         $data = $query->result_array();
 
         // ToDo: 메서드 추출
@@ -167,7 +238,14 @@ class Board_model_v2 extends My_Model
 
     public function set_comment($id)
     {
+        $user_id = $this->validate_user();
+
+        if ($user_id === FALSE) {
+            return FALSE;
+        }
+
         $data = array(
+            'user_id' => $user_id,
             'board_ns_id' => $id,
             'comment' => $this->input->post('comment'),
             'created_at' => date('Y-m-d H:i:s'),
@@ -180,8 +258,42 @@ class Board_model_v2 extends My_Model
 
     public function delete_board($id)
     {
-        $query = $this->getSoftDeleteQuery('board_ns', array('id' => $id));
+        $user_id = $this->validate_user();
 
-        log_message('error', $this->db->query($query));
+        if ($user_id === FALSE) {
+            return FALSE;
+        }
+
+        $where = array(
+            'id' => $id,
+            'user_id' => $user_id
+        );
+
+        $query = $this->db->select('id')
+            ->from('board_ns')
+            ->where($where)
+            ->get();
+
+        $result = $query->row(0);
+
+        if ($result === NULL) {
+            return FALSE;
+        } else {
+            log_message('error', $result->id);
+            $query = $this->getSoftDeleteQuery('board_ns', array('id' => $result->id));
+            $this->db->query($query);
+            return TRUE;
+        }
+    }
+
+    private function validate_user()
+    {
+        $user_id = $this->session->userdata('id');
+
+        if ($user_id === NULL) {
+            return FALSE;
+        }
+
+        return $user_id;
     }
 }

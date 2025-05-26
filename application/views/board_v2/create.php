@@ -9,6 +9,6 @@
     <label for="content">Content</label>
     <textarea name="content"></textarea><br />
 
-    <input type="submit" name="submit" value="Create board item" />
-
+    <input type="submit" name="submit" value="게시글 생성" />
+    <button type="button" onclick="location.href='/board_v2'">뒤로 가기</button>
 </form>
