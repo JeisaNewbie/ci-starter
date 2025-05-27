@@ -1,7 +1,3 @@
-<!-- <?php echo validation_errors(); ?>
-
-<?php echo form_open('board_v2/login') ?> -->
-
 <!DOCTYPE html>
 <html lang="en">
 

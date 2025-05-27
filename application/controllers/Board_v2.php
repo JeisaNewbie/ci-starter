@@ -13,26 +13,48 @@ class Board_v2 extends CI_Controller
         $this->load->helper('string');
     }
 
-    public function index($num = 10, $page = 1)
+    public function index()
     {
-        // $this->output->enable_profiler(TRUE);
-        $search = $this->input->get('search');
-        $where = $search !== '' ? array('title LIKE ' => '%' . $search . '%') : NULL;
+        $qs = $this->get_qs();
 
-        $data['board'] = $this->board_model_v2->get_board_index($search, $num, $page);
-        $data['pages'] = $this->get_pages($num, $page, 'board_ns', $where);
-        $data['search'] = $search;
-        $data['num'] = $num;
+        $query_parameters = [
+            'like' => [
+                'title' => $qs['search']
+            ],
+            'where' => NULL,
+            'table' => 'board_ns'
+        ];
+
+        if ($qs['category'] !== 'ALL')
+        {
+            $query_parameters['where'] = ['category' => $qs['category']];
+        }
+
+        $data['board'] = $this->board_model_v2->get_board_index($qs);
+
+        $total_data = 0;
+        $data['data_num'] = 0;
+
+        foreach ($data['board'] as $item) {
+            $total_data++;
+            $data['data_num'] = $item['depth'] == 0 ? $data['data_num'] += 1 : $data['data_num'];
+        }
+        
+        $data['pages'] = $this->get_pages($qs, $query_parameters);
+        $data['data_num'] = count($data['board']);
+        $data['search'] = $qs['search'];
+        $data['num'] = $qs['num'];
+        $data['category'] = $qs['category'];
 
         $this->load->view('board_v2/index', $data);
     }
 
-    public function view($id = NULL)
+    public function view($id)
     {
-        $this->output->enable_profiler(TRUE);
         $data['board'] = $this->board_model_v2->get_board_view($id);
 
-        if (empty($data['board'])) {
+        if (empty($data['board']))
+        {
             show_404();
         }
 
@@ -43,9 +65,12 @@ class Board_v2 extends CI_Controller
     {
         $result = $this->board_model_v2->create_account();
 
-        if ($result === TRUE) {
+        if ($result === TRUE)
+        {
             echo "OK";
-        } else {
+        }
+        else
+        {
             echo "FAIL";
         }
     }
@@ -55,13 +80,19 @@ class Board_v2 extends CI_Controller
         $this->form_validation->set_rules('id', 'ID', 'required');
         $this->form_validation->set_rules('password', 'password', 'required');
 
-        if ($this->form_validation->run() === FALSE) {
+        if ($this->form_validation->run() === FALSE)
+        {
             $this->load->view('board_v2/login');
-        } else {
+        } 
+        else
+        {
             $login = $this->board_model_v2->login();
-            if ($login === NULL) {
+            if ($login === NULL)
+            {
                 echo "FAIL";
-            } else {
+            }
+            else
+            {
                 $this->session->set_userdata($login);
                 echo "OK";
             }
@@ -75,47 +106,56 @@ class Board_v2 extends CI_Controller
         redirect('/board_v2');
     }
 
-    public function id_check()
-    {
-        if ($this->session->userdata('id') !== NULL) {
-            return TRUE;
-        }
-        $this->form_validation->set_message('id_check', '로그인이 필요합니다.');
-        return FALSE;
-    }
-
     public function create()
     {
         $this->form_validation->set_rules('id', 'Id', 'callback_id_check');
         $this->form_validation->set_rules('title', 'Title', 'required');
         $this->form_validation->set_rules('content', 'content', 'required');
 
-        if ($this->form_validation->run() === FALSE) {
+        if ($this->form_validation->run() === FALSE)
+        {
             $this->load->view('board_v2/create');
-        } else {
-
+        } 
+        else 
+        {
             $this->board_model_v2->set_board();
 
             redirect('board_v2');
         }
     }
 
-    public function set_content($id = NULL)
+    public function set_content($id)
     {
-        $insert_id = $this->board_model_v2->set_content($id);
-        if ($insert_id === FALSE)
-        {
-            redirect('board_v2/view/'. $id);
-        }
-        redirect('board_v2/view/' .  $insert_id);
+        $response = $this->board_model_v2->set_content($id);
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
+    }
+
+    public function update_content($id) {
+        $response = $this->board_model_v2->update_content($id);
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
     }
 
     public function get_comment($id, $num = 20, $page = 1)
     {
-        $data['comments'] = $this->board_model_v2->get_comment($id, $num, $page);
+        $qs = $this->get_qs();
 
-        $data['pages'] = $this->get_pages($num, $page, 'comment', array('board_ns_id' => $id));
-        $data['num'] = $this->board_model_v2->get_data_num('comment', array('board_ns_id' => $id));
+        $query_parameters = [
+            'like' => NULL,
+            'where' => [
+                'board_ns_id' => $id
+            ],
+            'table' => 'comment'
+        ];
+
+        $data['comments'] = $this->board_model_v2->get_comment($id, $num, $page);
+        $data['num'] = count($data['comments']);
+        $data['pages'] = $this->get_pages($qs, $query_parameters);
 
         $this->output
             ->set_content_type('application/json')
@@ -126,34 +166,84 @@ class Board_v2 extends CI_Controller
     {
         $this->board_model_v2->set_comment($id);
         echo "OK";
-        // redirect('board_v2/view/' . $id);
     }
 
-    public function delete($id = NULL)
+    public function delete($id)
     {
-        /* TODO: 유저 권한 확인 */
-        $result = $this->board_model_v2->delete_board($id);
-        if ($result === TRUE) {
-            echo "OK";
-        } else {
-            echo "FAIL";
-        }
+        $response = $this->board_model_v2->delete_board($id);
+        
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
     }
 
-    private function get_pages($num = 10, $page = 1, $table, $where = NULL, $search = NULL)
+    private function get_pages($qs, $query_parameters)
     {
-        $page_num = $this->board_model_v2->get_page_num($num, $table, $where);
+        $page_num = $this->get_page_num($qs['num'], $query_parameters);
         $page_num = $page_num === 0 ? 1 : $page_num;
-        $quotient = (int)($page / 10);
-        $mod = $page % 10;
+
+        $quotient = (int)($qs['page'] / 10);
+
+        $mod = $qs['page'] % 10;
 
         $data['start_page'] = $mod == 0 ? $quotient * 10 + 1 - 10 : $quotient * 10 + 1;
+       
         $data['end_page'] = $mod == 0 ? $quotient * 10 : $quotient * 10 + 10;
         $data['end_page'] = $data['end_page'] > $page_num ? $page_num : $data['end_page'];
 
-        $data['before'] = ($page - 10 < 1 ? 1 : $page - 10);
-        $data['after'] = ($page + 10 > $page_num ? $page_num : $page + 10);
+        $data['before'] = ($qs['page'] - 10 < 1 ? 1 : $qs['page'] - 10);
+       
+        $data['after'] = ($qs['page'] + 10 > $page_num ? $page_num : $qs['page'] + 10);
 
         return $data;
+    }
+
+    public function get_page_num($num, $query_parameters)
+    {
+        if ($query_parameters['like'] !== NULL)
+        {
+            $this->db->like($query_parameters['like']);
+        }
+
+        if ($query_parameters['where'] !== NULL)
+        {
+            $this->db->where($query_parameters['where']);
+        }
+
+        $total_data = $this->db->count_all_results($query_parameters['table']);
+        $mod = $total_data % $num;
+        $page = (int)($total_data / $num);
+
+        return (($page > 0) && ($mod > 0)) ? $page + 1 : $page;
+    }
+
+    public function id_check()
+    {
+        if ($this->session->userdata('id') !== NULL) {
+            return TRUE;
+        }
+        $this->form_validation->set_message('id_check', '로그인이 필요합니다.');
+        return FALSE;
+    }
+    
+    private function get_qs()
+    {
+        $category = $this->input->get('category');
+        $category = $category === NULL ? 'ALL' : $category;
+        $search = $this->input->get('search');
+        
+        $num = $this->input->get('num');
+        $num = $num === NULL ? 10 : $num;
+
+        $page = $this->input->get('page');
+        $page = $page === NULL ? 1 : $page;
+
+        $qs = [
+            'category' => $category,
+            'search' => $search,
+            'num' => $num,
+            'page' => $page
+        ];
+        return $qs;
     }
 }

@@ -215,7 +215,7 @@ class MY_Model extends CI_Model
         }
         $where = rtrim($where, " AND ");
 
-        return "UPDATE ". $table . " SET status = 'INACTIVE'" . $where; 
+        return "UPDATE ". $table . " SET status = 'INACTIVE', title = '삭제된 게시글입니다.', content = '삭제된 게시글입니다.'" . $where; 
     }
 
 

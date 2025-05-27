@@ -1,4 +1,3 @@
-<?php echo validation_errors(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,6 +7,7 @@
   <title>자유게시판</title>
   <script defer src="/assets/js/v2/view.js"></script>
   <?php echo link_tag('/assets/css/view.css'); ?>
+  <?php $username = $this->session->userdata('username'); ?>
 </head>
 
 <body>
@@ -22,7 +22,7 @@
       <div class="post-content"><?php echo $board[0]['content']; ?></div>
     </div>
     <hr style="margin: 20px auto 20px auto;">
-    <div class="container-answer-btx"> <!-- 추후 css 추가 -->
+    <div class="container-answer-btx">
       <!-- Content 출력 -->
       <?php
       $count = count($board);
@@ -55,10 +55,7 @@
           </form>
         </div>
         <div class="right">
-          <form action="<?= site_url('board_v2/set_content/' . $id) ?>" method="post" onsubmit="return submit_content(this);" style="display:inline;">
-            <input type="hidden" name="content" value="">
-            <button type="submit">답글 달기</button>
-          </form>
+          <button onclick="return submit_content(<?= $id ?>);">답글 달기</button>
         </div>
       </div>
     </div>
@@ -66,8 +63,18 @@
     <div class="post-container-comment">
       <button onclick="return open_comment(<?= $id ?>, 10, 1);">댓글창 열기</button>
       <button onclick="return close_comment();">댓글창 닫기</button>
-      <button onclick="return update_board(<?= $id ?>);" type="button">수정</button>
-      <button onclick="return delete_board(<?= $id ?>);" type="button">삭제</button>
+      <?php if ($username): ?>
+        <button onclick="return update_content(<?= $id ?>);" type="button">수정</button>
+      <?php else: ?>
+        <div>
+        </div>
+      <?php endif; ?>
+      <?php if ($username): ?>
+        <button onclick="return delete_board(<?= $id ?>);" type="button">삭제</button>
+      <?php else: ?>
+        <div>
+        </div>
+      <?php endif; ?>
       <div id="comment"></div>
     </div>
   </div>

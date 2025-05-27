@@ -1,10 +1,15 @@
 <?php
+define ('TABLE_NAME', 'board_ns');
 class Board_model_v2 extends My_Model
 {
-    const TABLE_NAME = 'board_ns';
+    // const RESPONSE = [
+    //         'status' => FALSE,
+    //         'message' => NULL
+    //     ];
     public function __construct()
     {
         $this->load->database();
+        $this->load->library('Category');
     }
 
     public function create_account()
@@ -19,15 +24,14 @@ class Board_model_v2 extends My_Model
             ->get();
 
         if ($check->num_rows() > 0) {
-            log_message('error', $check->num_rows());
             return FALSE;
         }
 
-        $data = array(
+        $data = [
             'user_id' => $id,
             'password' => $password,
             'username' => $username
-        );
+        ];
 
         $this->db->insert('users', $data);
         return TRUE;
@@ -35,7 +39,6 @@ class Board_model_v2 extends My_Model
 
     public function login()
     {
-        log_message('error', 'board_model_v2 login');
         $id = $this->input->post('id');
         $password = $this->input->post('password');
 
@@ -47,7 +50,6 @@ class Board_model_v2 extends My_Model
         $row = $check->row(0);
 
         if ($row === NULL) {
-            log_message('error', $check->num_rows());
             return NULL;
         }
 
@@ -55,56 +57,43 @@ class Board_model_v2 extends My_Model
             return NULL;
         }
 
-        return array(
+        return [
             'id' => $row->id,
             'username' => $row->username
-        );
+        ];
     }
 
-    public function get_page_num($num, $table, $where = array())
+    public function get_board_index($qs)
     {
-        $page = $this->get_data_num($table, $where);
-        $mod = $page % $num;
-        $page = (int)($page / $num);
-
-        return (($page > 0) && ($mod > 0)) ? $page + 1 : $page;
-    }
-
-    public function get_data_num($table, $where = array())
-    {
-        if ($where !== NULL) {
-            $this->db->where($where);
-        }
-
-        return $this->db->count_all_results($table);
-    }
-
-    public function get_board_index($search, $num, $page)
-    {
+        $response = [
+            'status' => FALSE,
+            'data' => NULL
+        ];
         /* 전체 글 조회 */
-        //CONCAT(REPEAT("--", depth), title) AS 
-        $offset = $num * ($page - 1);
 
-        $this->db->select('id, group_id, title, parent_id, depth, status, created_at');
-        $this->db->from('board_ns');
+        $offset = $qs['num'] * ($qs['page'] - 1);
 
-        if ($search !== '') {
-            $this->db->like('title', $search);
+        if ($qs['search'] !== NULL) {
+            $this->db->like('title', $qs['search']);
         }
 
-        $this->db->order_by('group_id', 'DESC');
-        $this->db->order_by('l_value', 'ASC');
-        $this->db->limit($num, $offset);
-
-        $data = $this->db->get()->result_array();
-
-        // ToDo: 메서드 추출
-        foreach ($data as &$data_item) {
-            if ($data_item['status'] === 'INACTIVE') {
-                $data_item['title'] = '삭제된 게시글입니다.';
-                $data_item['content'] = '삭제된 게시글입니다.';
+        if ($qs['category'] !== 'ALL')
+        {
+            if (!in_array($qs['category'], Category::values(), false)) 
+            {
+                return $response;
             }
+            $this->db->where('category', $qs['category']);
         }
+
+        $data = $this->db->select('id, group_id, title, parent_id, depth, status, created_at')
+            ->from('board_ns')
+            ->order_by('group_id', 'DESC')
+            ->order_by('l_value', 'ASC')
+            ->limit($qs['num'], $offset)
+            ->get()
+            ->result_array();
+        
         return $data;
     }
 
@@ -125,53 +114,64 @@ class Board_model_v2 extends My_Model
 
         $data = $query->result_array();
 
-        // ToDo: 메서드 추출
-        foreach ($data as &$data_item) {
-            if ($data_item['status'] === 'INACTIVE') {
-                $data_item['title'] = '삭제된 게시글입니다.';
-                $data_item['content'] = '삭제된 게시글입니다.';
-            }
-        }
         return $data;
     }
 
     public function set_board()
     {
-        $user_id = $this->validate_user();
+        $user_id = $this->validate_login();
 
         if ($user_id === FALSE) {
             return FALSE;
         }
 
-        $data = array(
+        $category = $this->input->post('category');
+
+        if (!in_array($category, Category::values(), false)) {
+            return FALSE;
+        }
+        
+
+        $data = [
             'user_id' => $user_id,
             'title' => $this->input->post('title'),
             'content' => $this->input->post('content'),
+            'category' => $category,
+            'status' => 'ACTIVE',
             'parent_id' => NULL,
             'depth' => 0,
             'l_value' => 1,
             'r_value' => 2,
             'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-            'status' => 'ACTIVE'
-        );
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
 
         $this->db->insert('board_ns', $data);
         $insert_id = $this->db->insert_id();
+
         // 쿼리 빌더로 수정
+        // $this->db->set('group_id', 'id')
+        //     ->where('id', $insert_id)
+        //     ->update('board_ns');
         return $this->db->query('UPDATE board_ns SET group_id = id WHERE id = ?', $insert_id);
     }
 
-    // ToDo: 메서드 명 변경 필요
     public function set_content($id)
     {
-        $user_id = $this->validate_user();
+        $response = [
+            'status' => FALSE,
+            'message' => NULL
+        ];
 
-        if ($user_id === FALSE) {
-            return FALSE;
+        $user_id = $this->validate_login();
+
+        if ($user_id === FALSE) 
+        {
+            $response['message'] = '로그인이 필요합니다.';
+            return $response;
         }
 
-        $attributes = array('id' => $id);
+        $attributes = ['id' => $id];
 
         $query = $this->db->get_where('board_ns', $attributes);
 
@@ -180,10 +180,11 @@ class Board_model_v2 extends My_Model
         $new_left = $row['r_value'];
         $new_right = $new_left + 1;
 
-        $data = array(
+        $data = [
             'user_id' => $user_id,
             'title' => $row['title'],
             'content' => $this->input->post('content'),
+            'category' => $row['category'],
             'parent_id' => $id,
             'group_id' => $row['group_id'],
             'depth' => $row['depth'] + 1,
@@ -192,23 +193,76 @@ class Board_model_v2 extends My_Model
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
             'status' => 'AVTIVE'
-        );
+        ];
 
-        $where_attr_left = array('l_value >=' => $new_right, 'group_id' => $row['group_id']);
-        $where_attr_right = array('r_value >=' => $new_left, 'group_id' => $row['group_id']);
+        $where_attr_left = ['l_value >=' => $new_right, 'group_id' => $row['group_id']];
+        $where_attr_right = ['r_value >=' => $new_left, 'group_id' => $row['group_id']];
 
-        $this->db->set('l_value', 'l_value + 2', FALSE);
-        $this->db->where($where_attr_left);
-        $this->db->update('board_ns');
+        $this->db->set('l_value', 'l_value + 2', FALSE)
+            ->where($where_attr_left)
+            ->update('board_ns');
 
-        $this->db->set('r_value', 'r_value + 2', FALSE);
-        $this->db->where($where_attr_right);
-        $this->db->update('board_ns');
+        $this->db->set('r_value', 'r_value + 2', FALSE)
+            ->where($where_attr_right)
+            ->update('board_ns');
 
         $this->db->insert('board_ns', $data);
         $insert_id = $this->db->insert_id();
 
-        return $insert_id;
+        $response['status'] = TRUE;
+        $response['message'] = '/board_v2/view/' . $insert_id;
+
+        return $response;
+    }
+
+    public function update_content($id)
+    {
+        $response = [
+            'status' => FALSE,
+            'message' => NULL
+        ];
+
+        $user_id = $this->validate_login();
+
+        if ($user_id === FALSE) 
+        {
+            $response['message'] = '로그인이 필요합니다.';
+            return $response;
+        }
+
+        $data = $this->db->get_where('board_ns', ['id' => $id]);
+        
+        if ($data->num_rows() === 0)
+        {
+            $response['message'] = '게시글이 존재하지 않습니다.';
+            return $response;
+        } 
+        
+        $ret = $this->validate_user($user_id, $data->row(0)->user_id);
+
+        if ($ret === FALSE)
+        {
+            $response['message'] = '본인의 게시글만 수정 가능합니다.';
+            return $response;
+        }
+
+        $where = [
+            'id' => $id,
+            'user_id' => $user_id
+        ];
+
+        $data = [
+            'content' => $this->input->post('content'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->where($where)
+            ->update('board_ns', $data);
+        
+        $response['status'] = TRUE;
+        $response['message'] = '/board_v2/view/' . $id;
+
+        return $response;
     }
 
     public function get_comment($id, $num, $page)
@@ -226,67 +280,86 @@ class Board_model_v2 extends My_Model
 
         $data = $query->result_array();
 
-        // ToDo: 메서드 추출
-        foreach ($data as &$data_item) {
-            if ($data_item['status'] === 'INACTIVE') {
-                $data_item['title'] = '삭제된 게시글입니다.';
-                $data_item['content'] = '삭제된 게시글입니다.';
-            }
-        }
         return $data;
     }
 
     public function set_comment($id)
     {
-        $user_id = $this->validate_user();
+        $user_id = $this->validate_login();
 
         if ($user_id === FALSE) {
             return FALSE;
         }
 
-        $data = array(
+        $data = [
             'user_id' => $user_id,
             'board_ns_id' => $id,
             'comment' => $this->input->post('comment'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
             'status' => 'ACTIVE'
-        );
+        ];
 
         $this->db->insert('comment', $data);
     }
 
     public function delete_board($id)
     {
-        $user_id = $this->validate_user();
+        $response = [
+            'status' => FALSE,
+            'message' => NULL
+        ];
 
-        if ($user_id === FALSE) {
-            return FALSE;
+        $user_id = $this->validate_login();
+
+        if ($user_id === FALSE) 
+        {
+            $response['message'] = '로그인이 필요합니다.';
+            return $response;
         }
 
-        $where = array(
+        $data = $this->db->get_where('board_ns', ['id' => $id]);
+        
+        if ($data->num_rows() === 0)
+        {
+            $response['message'] = '게시글이 존재하지 않습니다.';
+            return $response;
+        } 
+
+        $data = $data->row(0);
+        
+        $ret = $this->validate_user($user_id, $data->user_id);
+
+        if ($ret === FALSE)
+        {
+            $response['message'] = '본인의 게시글만 삭제 가능합니다.';
+            return $response;
+        }
+
+        $data_to_delete = [
+            'user_id' => $data->user_id,
+            'board_ns_id' => $data->id,
+            'title' => $data->title,
+            'content' => $data->content
+        ];
+
+        $where = [
             'id' => $id,
             'user_id' => $user_id
-        );
+        ];
 
-        $query = $this->db->select('id')
-            ->from('board_ns')
-            ->where($where)
-            ->get();
+        $this->db->insert('deleted_board', $data_to_delete);
 
-        $result = $query->row(0);
+        $query = $this->getSoftDeleteQuery('board_ns', $where);
+        $this->db->query($query);
 
-        if ($result === NULL) {
-            return FALSE;
-        } else {
-            log_message('error', $result->id);
-            $query = $this->getSoftDeleteQuery('board_ns', array('id' => $result->id));
-            $this->db->query($query);
-            return TRUE;
-        }
+        $response['status'] = TRUE;
+        $response['message'] = '삭제 되었습니다.';
+
+        return $response;
     }
 
-    private function validate_user()
+    private function validate_login()
     {
         $user_id = $this->session->userdata('id');
 
@@ -295,5 +368,14 @@ class Board_model_v2 extends My_Model
         }
 
         return $user_id;
+    }
+
+    private function validate_user($user_id, $user_id_to_validate)
+    {
+        if ($user_id_to_validate !== $user_id)
+        {
+            return FALSE;
+        }
+        return TRUE;
     }
 }
