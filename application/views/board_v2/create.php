@@ -7,11 +7,11 @@
 <label for="category" style="width: 100px;">Category</label>
 <select id="categorySelector" name="category">
     <option value="NONE" selected>카테고리를 선택하세요.</option>
-    <option value="GAME">GAME</option>
-    <option value="MOVIE">MOVIE</option>
-    <option value="MUSIC">MUSIC</option>
-    <option value="SPORTS">SPORTS</option>
-    <option value="TALK">TALK</option>
+    <option value="GAME">게임</option>
+    <option value="MOVIE">영화</option>
+    <option value="MUSIC">음악</option>
+    <option value="SPORTS">스포츠</option>
+    <option value="TALK">잡담</option>
 </select>
 
 <label for="title" style="width: 100px;">Title</label>

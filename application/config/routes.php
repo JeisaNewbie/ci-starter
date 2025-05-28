@@ -58,6 +58,7 @@ $route['board/(:any)'] = 'board/view/$1';
 $route['board'] = 'board';
 
 
+$route['board_v2/test'] = 'board_v2/test';
 $route['board_v2/index'] = 'board_v2/index';
 $route['board_v2/create'] = 'board_v2/create';
 $route['board_v2/login'] = 'board_v2/login';

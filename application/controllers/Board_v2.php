@@ -5,12 +5,27 @@ class Board_v2 extends CI_Controller
     {
         parent::__construct();
         $this->load->model('board_model_v2');
+        $this->load->model('test_model');
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->helper('html');
         $this->load->helper('form');
         $this->load->helper('url');
         $this->load->helper('string');
+    }
+
+    public function test($method = NULL)
+    {
+        if ($method == 'delete')
+        {
+            $this->test_model->do_delete();
+        }
+        else if ($method == 'create')
+        {
+            $this->test_model->do_test();
+        }
+
+        redirect('/board_v2');
     }
 
     public function index()
@@ -31,19 +46,11 @@ class Board_v2 extends CI_Controller
         }
 
         $data['board'] = $this->board_model_v2->get_board_index($qs);
-
-        $total_data = 0;
-        $data['data_num'] = 0;
-
-        foreach ($data['board'] as $item) {
-            $total_data++;
-            $data['data_num'] = $item['depth'] == 0 ? $data['data_num'] += 1 : $data['data_num'];
-        }
-        
         $data['pages'] = $this->get_pages($qs, $query_parameters);
-        $data['data_num'] = count($data['board']);
         $data['search'] = $qs['search'];
         $data['num'] = $qs['num'];
+        $data['current_page'] = $qs['page'];
+        $data['pages']['total_data'] -= $data['num'] * ($data['current_page'] - 1);
         $data['category'] = $qs['category'];
 
         $this->load->view('board_v2/index', $data);
@@ -179,21 +186,27 @@ class Board_v2 extends CI_Controller
 
     private function get_pages($qs, $query_parameters)
     {
-        $page_num = $this->get_page_num($qs['num'], $query_parameters);
-        $page_num = $page_num === 0 ? 1 : $page_num;
+        $total_data_n_page = $this->get_page_num($qs['num'], $query_parameters);
+        
+        $page_num = $total_data_n_page['page'];
+        $page_num = $page_num == 0 ? 1 : $page_num;
 
         $quotient = (int)($qs['page'] / 10);
 
         $mod = $qs['page'] % 10;
 
+        $data['total_data'] = $total_data_n_page['total_data'];
         $data['start_page'] = $mod == 0 ? $quotient * 10 + 1 - 10 : $quotient * 10 + 1;
        
         $data['end_page'] = $mod == 0 ? $quotient * 10 : $quotient * 10 + 10;
         $data['end_page'] = $data['end_page'] > $page_num ? $page_num : $data['end_page'];
 
-        $data['before'] = ($qs['page'] - 10 < 1 ? 1 : $qs['page'] - 10);
-       
+        $data['before'] = ($qs['page'] - 10 < 1 ? NULL : $qs['page'] - 10);
         $data['after'] = ($qs['page'] + 10 > $page_num ? $page_num : $qs['page'] + 10);
+
+        $page_num_mod = $page_num % 10 == 0 ? 10 : $page_num % 10;
+        $tmp_page_num = $page_num - $page_num_mod + 1;
+        $data['after'] = $qs['page'] >= $tmp_page_num ? NULL : $data['after'];
 
         return $data;
     }
@@ -214,7 +227,12 @@ class Board_v2 extends CI_Controller
         $mod = $total_data % $num;
         $page = (int)($total_data / $num);
 
-        return (($page > 0) && ($mod > 0)) ? $page + 1 : $page;
+        return [
+            'total_data' => $total_data,
+            'page' => (($page > 0) && ($mod > 0)) ? $page + 1 : $page
+        ];
+
+        // return (($page > 0) && ($mod > 0)) ? $page + 1 : $page;
     }
 
     public function id_check()
@@ -230,6 +248,7 @@ class Board_v2 extends CI_Controller
     {
         $category = $this->input->get('category');
         $category = $category === NULL ? 'ALL' : $category;
+
         $search = $this->input->get('search');
         
         $num = $this->input->get('num');
@@ -244,6 +263,8 @@ class Board_v2 extends CI_Controller
             'num' => $num,
             'page' => $page
         ];
+
+
         return $qs;
     }
 }

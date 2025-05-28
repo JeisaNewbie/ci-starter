@@ -8,7 +8,8 @@
     window.boardVars = {
       category: <?= json_encode($category) ?>,
       num: <?= json_encode($num) ?>,
-      data_num: <?= json_encode($data_num) ?>,
+      current_page: <?= json_encode($current_page) ?>,
+      total_data: <?= json_encode($pages['total_data']) ?>,
       before: <?= json_encode($pages['before']) ?>,
       after: <?= json_encode($pages['after']) ?>,
       search: <?= json_encode($search) ?>,
@@ -63,7 +64,8 @@
     <table class="list-table">
       <thead>
         <tr>
-          <th width="70">번호</th>
+          <th width="50">번호</th>
+          <th width="70">카테고리</th>
           <th width="500">제목</th>
           <th width="100">작성일</th>
         </tr>
@@ -71,7 +73,8 @@
       <?php foreach ($board as $board_item): ?>
         <div>
           <tr>
-            <td width="70"><?php $board_num = $board_item['depth'] > 0 ? '' : $data_num; $data_num--; echo $board_num ?></td>
+            <td width="50"><?php echo $pages['total_data']-- ?></td>
+            <td width="70"><?php echo $board_item['category']-- ?></td>
             <td width="500">
               <a href="<?php echo "/board_v2/view/" . $board_item['id'] ?>">
                 <?php
@@ -88,19 +91,28 @@
       <?php endforeach ?>
     </table>
   </div>
-  <div class="search-container" data-num="<?= $num ?>" data-page="<?= $pages['before'] ?>">
+  <div class="search-container">
     <input id="searchInput" type="text" class="search-input" placeholder="검색어를 입력하세요">
     <button onclick="return search()">검색</button>
   </div>
   <div id="write_btn" class="btx_box">
-    <button onclick="return before()">이전</button>
+    <?php if ($pages['before'] === NULL): ?>
+    <?php else: ?>
+      <button onclick="return before()">이전</button>
+    <?php endif; ?>
     <?php
     for ($i = $pages['start_page']; $i <= $pages['end_page']; $i++) {
-      echo "<a href=\"/board_v2/index?category=$category&search=$search&num=$num&page=$i\">$i </a>";
+      if ($i == $current_page) {
+        echo " " . $i . " ";
+        continue;
+      }
+      echo "<a href=\"/board_v2/index?category=$category&search=$search&num=$num&page=$i\" style=\"color: #4285F4\">$i </a>";
     }
     ?>
-    <button onclick="return after()">다음</button>
-
+    <?php if ($pages['after'] === NULL): ?>
+    <?php else: ?>
+      <button onclick="return after()">다음</button>
+    <?php endif; ?>
   </div>
 </body>
 

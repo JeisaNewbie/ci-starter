@@ -15,7 +15,7 @@
     <div style="width: 100%; height: 30px; font-size:x-large; text-align:center">
       <a href="<?php echo "/board_v2" ?>">자유게시판</a>
     </div>
-    <h2><?php echo  $board[0]['group_id'] . ". " . $board[0]['title']; ?></h2>
+    <h2><?php echo '제목: ' . $board[0]['title']; ?></h2>
     <hr>
     <h3 style="text-align: center;">원글 입니다.</h3>
     <div class="post-container-origin">
@@ -38,13 +38,17 @@
       <?php endfor ?>
       <!-- Content 출력 종료 -->
       <div class="btx-box">
-        <div class="left">
-          <form action="<?= $url = '/board_v2/view/' . $group_id;
-                        site_url($url) ?>" method="post" style="display:inline;">
-            <button type="submit">원글</button>
-          </form>
-        </div>
-        <div class="middle-left">
+        <?php if ($id != $group_id): ?>
+          <div class="left">
+            <form action="<?= $url = '/board_v2/view/' . $group_id;
+                          site_url($url) ?>" method="post" style="display:inline;">
+              <button type="submit">원글</button>
+            </form>
+          </div>
+        <?php else: ?>
+          <div></div>
+        <?php endif; ?>
+        <!-- <div class="middle-left">
           <form action="<?= site_url('board_v2') ?>" method="post" style="display:inline;">
             <button type="submit">이전 답글</button>
           </form>
@@ -53,27 +57,29 @@
           <form action="<?= site_url('board_v2') ?>" method="post" style="display:inline;">
             <button type="submit">다음 답글</button>
           </form>
-        </div>
+        </div> -->
         <div class="right">
-          <button onclick="return submit_content(<?= $id ?>);">답글 달기</button>
+          <?php if ($username): ?>
+            <button onclick="return submit_content(<?= $id ?>);">답글 달기</button>
+          <?php else: ?>
+            <div></div>
+          <?php endif; ?>
         </div>
       </div>
     </div>
-    <hr style="margin: 20px auto 20px auto;">
+    <!-- <hr style="margin: 20px auto 20px auto;"> -->
     <div class="post-container-comment">
-      <button onclick="return open_comment(<?= $id ?>, 10, 1);">댓글창 열기</button>
+      <button onclick="return open_comment(<?= $id ?>, 10, 1, <?= $username != null ? 1 : null ?>);">댓글창 열기</button>
       <button onclick="return close_comment();">댓글창 닫기</button>
       <?php if ($username): ?>
         <button onclick="return update_content(<?= $id ?>);" type="button">수정</button>
       <?php else: ?>
-        <div>
-        </div>
+        <div></div>
       <?php endif; ?>
       <?php if ($username): ?>
         <button onclick="return delete_board(<?= $id ?>);" type="button">삭제</button>
       <?php else: ?>
-        <div>
-        </div>
+        <div></div>
       <?php endif; ?>
       <div id="comment"></div>
     </div>

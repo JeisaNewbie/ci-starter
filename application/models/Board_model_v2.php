@@ -1,11 +1,13 @@
 <?php
-define ('TABLE_NAME', 'board_ns');
+define ('TABLE_BOARD', 'board_ns');
+define ('TABLE_USER', 'users');
 class Board_model_v2 extends My_Model
 {
     // const RESPONSE = [
     //         'status' => FALSE,
     //         'message' => NULL
     //     ];
+
     public function __construct()
     {
         $this->load->database();
@@ -19,7 +21,7 @@ class Board_model_v2 extends My_Model
         $username = $this->input->post('username');
 
         $check = $this->db->select('user_id')
-            ->from('users')
+            ->from(TABLE_USER)
             ->where('user_id', $id)
             ->get();
 
@@ -33,7 +35,7 @@ class Board_model_v2 extends My_Model
             'username' => $username
         ];
 
-        $this->db->insert('users', $data);
+        $this->db->insert(TABLE_USER, $data);
         return TRUE;
     }
 
@@ -43,7 +45,7 @@ class Board_model_v2 extends My_Model
         $password = $this->input->post('password');
 
         $check = $this->db->select('id, user_id, password, username')
-            ->from('users')
+            ->from(TABLE_USER)
             ->where('user_id', $id)
             ->get();
 
@@ -86,8 +88,8 @@ class Board_model_v2 extends My_Model
             $this->db->where('category', $qs['category']);
         }
 
-        $data = $this->db->select('id, group_id, title, parent_id, depth, status, created_at')
-            ->from('board_ns')
+        $data = $this->db->select('id, group_id, title, parent_id, depth, status, created_at, category')
+            ->from(TABLE_BOARD)
             ->order_by('group_id', 'DESC')
             ->order_by('l_value', 'ASC')
             ->limit($qs['num'], $offset)
@@ -146,13 +148,13 @@ class Board_model_v2 extends My_Model
             'updated_at' => date('Y-m-d H:i:s')
         ];
 
-        $this->db->insert('board_ns', $data);
+        $this->db->insert(TABLE_BOARD, $data);
         $insert_id = $this->db->insert_id();
 
         // 쿼리 빌더로 수정
         // $this->db->set('group_id', 'id')
         //     ->where('id', $insert_id)
-        //     ->update('board_ns');
+        //     ->update(TABLE_BOARD);
         return $this->db->query('UPDATE board_ns SET group_id = id WHERE id = ?', $insert_id);
     }
 
@@ -173,7 +175,7 @@ class Board_model_v2 extends My_Model
 
         $attributes = ['id' => $id];
 
-        $query = $this->db->get_where('board_ns', $attributes);
+        $query = $this->db->get_where(TABLE_BOARD, $attributes);
 
         $row = $query->row_array();
 
@@ -200,13 +202,13 @@ class Board_model_v2 extends My_Model
 
         $this->db->set('l_value', 'l_value + 2', FALSE)
             ->where($where_attr_left)
-            ->update('board_ns');
+            ->update(TABLE_BOARD);
 
         $this->db->set('r_value', 'r_value + 2', FALSE)
             ->where($where_attr_right)
-            ->update('board_ns');
+            ->update(TABLE_BOARD);
 
-        $this->db->insert('board_ns', $data);
+        $this->db->insert(TABLE_BOARD, $data);
         $insert_id = $this->db->insert_id();
 
         $response['status'] = TRUE;
@@ -230,7 +232,7 @@ class Board_model_v2 extends My_Model
             return $response;
         }
 
-        $data = $this->db->get_where('board_ns', ['id' => $id]);
+        $data = $this->db->get_where(TABLE_BOARD, ['id' => $id]);
         
         if ($data->num_rows() === 0)
         {
@@ -257,7 +259,7 @@ class Board_model_v2 extends My_Model
         ];
 
         $this->db->where($where)
-            ->update('board_ns', $data);
+            ->update(TABLE_BOARD, $data);
         
         $response['status'] = TRUE;
         $response['message'] = '/board_v2/view/' . $id;
@@ -318,7 +320,7 @@ class Board_model_v2 extends My_Model
             return $response;
         }
 
-        $data = $this->db->get_where('board_ns', ['id' => $id]);
+        $data = $this->db->get_where(TABLE_BOARD, ['id' => $id]);
         
         if ($data->num_rows() === 0)
         {
@@ -350,7 +352,7 @@ class Board_model_v2 extends My_Model
 
         $this->db->insert('deleted_board', $data_to_delete);
 
-        $query = $this->getSoftDeleteQuery('board_ns', $where);
+        $query = $this->getSoftDeleteQuery(TABLE_BOARD, $where);
         $this->db->query($query);
 
         $response['status'] = TRUE;
