@@ -9,11 +9,17 @@ class MY_Controller extends CI_Controller
 
     public function __construct()
     {
-
         parent::__construct();
         # Parameter
         $this->params = $this->getParams();
         $this->cookies = $this->getCookies();
+        $this->load->model('board_model_v2');
+        $this->load->library('form_validation');
+        $this->load->library('session');
+        $this->load->helper('html');
+        $this->load->helper('form');
+        $this->load->helper('url');
+        $this->load->helper('string');
     }
 
     private function getParams()

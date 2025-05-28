@@ -20,22 +20,24 @@ class auth_hook
 
     private function _auth_check()
     {
-        define('PATH_PREFIX', 'board_v2');
-        
+        define('PATH_PREFIX', 'board');
+
         $white_list = [
             PATH_PREFIX,
             PATH_PREFIX . '/login',
             PATH_PREFIX . '/index',
             PATH_PREFIX . '/view/*',
-            PATH_PREFIX . '/get_comment/*'
+            PATH_PREFIX . '/get_comment/*',
+            'auth/*',
+            'test/*'
         ];
 
         $uri = uri_string();
 
         foreach ($white_list as $allowed)
         {
-            log_message('error', 'PATH_PREFIX: ' . $allowed);
-            log_message('error', 'URI: ' . $uri);
+            // log_message('error', 'PATH_PREFIX: ' . $allowed);
+            // log_message('error', 'URI: ' . $uri);
             if (fnmatch($allowed, $uri))
             {
                 return;
@@ -44,7 +46,7 @@ class auth_hook
 
         if (!$this->ci->session->userdata('username'))
         {
-            redirect(PATH_PREFIX . '/login');
+            redirect('auth' . '/login');
         }
     }
 }

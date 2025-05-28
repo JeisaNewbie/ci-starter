@@ -53,23 +53,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // $route['404_override'] = '';
 // $route['translate_uri_dashes'] = FALSE;
 
+// $route['board/create'] = 'board/create';
+// $route['board/(:any)'] = 'board/view/$1';
+// $route['board'] = 'board';
+
+$route['test/index'] = 'test/index';
+$route['test'] = 'test';
+
+
+$route['auth/index'] = 'auth/index';
+$route['auth'] = 'auth';
+
+$route['board/index'] = 'board/index';
 $route['board/create'] = 'board/create';
+$route['board/login'] = 'board/login';
+$route['board/logout'] = 'board/logout';
+$route['board/create_account'] = 'board/create_account';
 $route['board/(:any)'] = 'board/view/$1';
 $route['board'] = 'board';
-
-
-$route['board_v2/test'] = 'board_v2/test';
-$route['board_v2/index'] = 'board_v2/index';
-$route['board_v2/create'] = 'board_v2/create';
-$route['board_v2/login'] = 'board_v2/login';
-$route['board_v2/logout'] = 'board_v2/logout';
-$route['board_v2/create_account'] = 'board_v2/create_account';
-$route['board_v2/(:any)'] = 'board_v2/view/$1';
-$route['board_v2'] = 'board_v2';
-
-$route['news/create'] = 'news/create';
-$route['news/(:any)'] = 'news/view/$1';
-$route['news'] = 'news';
 
 $route['(:any)'] = 'pages/view/$1';
 $route['default_controller'] = 'pages/view';

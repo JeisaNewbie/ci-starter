@@ -1,83 +1,89 @@
-<?php echo link_tag('/assets/css/view.css'); ?>
+<!DOCTYPE html>
+<html lang="en">
 
-<!-- <?php echo validation_errors(); ?> -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자유게시판</title>
+  <script defer src="/assets/js/v2/view.js"></script>
+  <?php echo link_tag('/assets/css/view.css'); ?>
+  <?php $username = $this->session->userdata('username'); ?>
+</head>
 
-<div class="main">
-  <h2><?php echo  $board[0]['group_id'] . ". " . $board[0]['title']; ?></h2>
-  <div class="post-container-origin">
-    <div class="post-content">
-      <?php echo $board[0]['content']; ?>
-      <div class="btx-align">
-        <div class="left">
+<body>
+  <div class="main">
+    <div style="width: 100%; height: 30px; font-size:x-large; text-align:center">
+      <a href="<?php echo "/board" ?>">자유게시판</a>
+    </div>
+    <h2><?php echo '제목: ' . $board[0]['title']; ?></h2>
+    <hr>
+    <h3 style="text-align: center;">원글 입니다.</h3>
+    <div class="post-container-origin">
+      <div class="post-content"><?php echo $board[0]['content']; ?></div>
+    </div>
+    <hr style="margin: 20px auto 20px auto;">
+    <div class="container-answer-btx">
+      <!-- Content 출력 -->
+      <?php
+      $count = count($board);
+      $id = $board[$count - 1]['id'];
+      $group_id = $board[$count - 1]['group_id'];
+      $tmp_board = array_slice($board, 1);
+      $count -= 1;
+      for ($i = 0; $i < $count; $i++): ?>
+        <div class="post-container-answer">
+          <?php if ($i == $count - 1) echo "현재 글 입니다.<hr>" ?>
+          <div class="post-content"><?php echo $tmp_board[$i]['content']; ?></div>
+        </div>
+      <?php endfor ?>
+      <!-- Content 출력 종료 -->
+      <div class="btx-box">
+        <?php if ($id != $group_id): ?>
+          <div class="left">
+            <form action="<?= $url = '/board/view/' . $group_id;
+                          site_url($url) ?>" method="post" style="display:inline;">
+              <button type="submit">원글</button>
+            </form>
+          </div>
+        <?php else: ?>
+          <div></div>
+        <?php endif; ?>
+        <!-- <div class="middle-left">
           <form action="<?= site_url('board') ?>" method="post" style="display:inline;">
-            <button type="submit">뒤로가기</button>
+            <button type="submit">이전 답글</button>
           </form>
         </div>
+        <div class="middle-right">
+          <form action="<?= site_url('board') ?>" method="post" style="display:inline;">
+            <button type="submit">다음 답글</button>
+          </form>
+        </div> -->
         <div class="right">
-          <form action="<?= site_url('board/delete/' . $board[0]['id']) ?>" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display:inline;">
-            <button type="submit">삭제</button>
-          </form>
+          <?php if ($username): ?>
+            <button onclick="return submit_content(<?= $id ?>);">답글 달기</button>
+          <?php else: ?>
+            <div></div>
+          <?php endif; ?>
         </div>
       </div>
-      <div class="">
-        <details>
-          <summary>댓글 달기</summary>
-          <form action="<?= site_url('board/set_comment/' . $board[0]['id'] . '/' . $board[0]['group_id']) ?>" method="post" style="display:inline;">
-            <label for="content">댓글</label>
-            <textarea name="content"></textarea><br />
-            <button type="submit">댓글 달기</button>
-          </form>
-        </details>
-        <details>
-          <summary>답글 달기</summary>
-          <form action="<?= site_url('board/set_comment/' . $board[0]['id'] . '/' . $board[0]['group_id']) ?>" method="post" style="display:inline;">
-            <label for="content">답글</label>
-            <textarea name="content"></textarea><br />
-            <button type="submit">답글 달기</button>
-          </form>
-        </details>
-      </div>
     </div>
-    <div class="load-content">
-      <form action="<?= site_url('board') ?>" method="post" style="display:inline;">
-        <button type="submit">이전 답글</button>
-      </form>
-      <form action="<?= site_url('board') ?>" method="post" style="display:inline;">
-        <button type="submit">다음 답글</button>
-      </form>
-    </div>
-    <div>
-      <?php $board = array_slice($board, 1); foreach ($board as $board_item): ?>
-        <div class="post-container-inside">
-          <div class="post-content">
-            <?php echo $board_item['content']; ?>
-          </div>
-          <div>
-            <div class="right">
-              <form action="<?= site_url('board/delete/' . $board_item['id']) ?>" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display:inline;">
-                <button type="submit">삭제</button>
-              </form>
-            </div>
-            <div>
-              <details>
-                <summary>댓글 달기</summary>
-                <form action="<?= site_url('board/set_comment/' . $board_item['id'] . '/' . $board_item['group_id']) ?>" method="post" style="display:inline;">
-                  <label for="content">댓글</label>
-                  <textarea name="content"></textarea><br />
-                  <button type="submit">댓글 달기</button>
-                </form>
-              </details>
-              <details>
-                <summary>답글 달기</summary>
-                <form action="<?= site_url('board/set_comment/' . $board_item['id'] . '/' . $board_item['group_id']) ?>" method="post" style="display:inline;">
-                  <label for="content">답글</label>
-                  <textarea name="content"></textarea><br />
-                  <button type="submit">답글 달기</button>
-                </form>
-              </details>
-            </div>
-          </div>
-        </div>
-      <?php endforeach ?>
+    <!-- <hr style="margin: 20px auto 20px auto;"> -->
+    <div class="post-container-comment">
+      <button onclick="return open_comment(<?= $id ?>, 10, 1, <?= $username != null ? 1 : null ?>);">댓글창 열기</button>
+      <button onclick="return close_comment();">댓글창 닫기</button>
+      <?php if ($username): ?>
+        <button onclick="return update_content(<?= $id ?>);" type="button">수정</button>
+      <?php else: ?>
+        <div></div>
+      <?php endif; ?>
+      <?php if ($username): ?>
+        <button onclick="return delete_board(<?= $id ?>);" type="button">삭제</button>
+      <?php else: ?>
+        <div></div>
+      <?php endif; ?>
+      <div id="comment"></div>
     </div>
   </div>
+</body>
+
+</html>
