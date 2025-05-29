@@ -65,12 +65,12 @@ $route['auth/index'] = 'auth/index';
 $route['auth'] = 'auth';
 
 $route['board/index'] = 'board/index';
-$route['board/create'] = 'board/create';
-$route['board/login'] = 'board/login';
-$route['board/logout'] = 'board/logout';
-$route['board/create_account'] = 'board/create_account';
-$route['board/(:any)'] = 'board/view/$1';
+// $route['board/create'] = 'board/create';
+// $route['board/(:any)'] = 'board/view/$1';
 $route['board'] = 'board';
+
+// $route['comment/get_comment'] = 'comment/get_comment';
+$route['comment'] = 'comment';
 
 $route['(:any)'] = 'pages/view/$1';
 $route['default_controller'] = 'pages/view';

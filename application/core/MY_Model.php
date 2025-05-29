@@ -16,6 +16,7 @@ class MY_Model extends CI_Model
         $this->ci =& get_instance();
 
         parent::__construct();
+        $this->load->database();
     }
 
     public function excute($sSql = '', $sType = 'rows', $sPrefix = null)

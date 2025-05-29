@@ -45,7 +45,7 @@
     <div id="board_area_top" style="width: 500px; float: right; display:grid; grid-template-columns: 80px 90px; justify-content: end;">
       <?php if ($username): ?>
         <div id="write_btn">
-          <a href="/board/create"><button>글쓰기</button></a>
+          <a href="/board/create_board"><button>글쓰기</button></a>
         </div>
       <?php else: ?>
         <div></div>

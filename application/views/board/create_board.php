@@ -1,7 +1,7 @@
 <?php echo link_tag('assets/css/create.css'); ?>
 <?php echo validation_errors(); ?>
 <script defer src="/assets/js/v2/create.js"></script>
-<?php echo form_open('board_v2/create') ?>
+<?php echo form_open('board/create_board') ?>
 <h2>게시글 생성</h2>
 
 <label for="category" style="width: 100px;">Category</label>
@@ -21,5 +21,5 @@
 <textarea name="content"></textarea><br />
 
 <input type="submit" name="submit" value="게시글 생성" />
-<button type="button" onclick="location.href='/board_v2'">뒤로 가기</button>
+<button type="button" onclick="location.href='/board'">뒤로 가기</button>
 </form>

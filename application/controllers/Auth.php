@@ -4,11 +4,11 @@ class Auth extends MY_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('login_model');
     }
 
     public function login()
     {
-        log_message('error', 'login/index');
         $this->form_validation->set_rules('id', 'ID', 'required');
         $this->form_validation->set_rules('password', 'password', 'required');
 
@@ -18,14 +18,13 @@ class Auth extends MY_Controller
         } 
         else
         {
-            $login = $this->board_model_v2->login();
-            if ($login === NULL)
+            $login = $this->login_model->login();
+            if ($login === FALSE)
             {
                 echo "FAIL";
             }
             else
             {
-                $this->session->set_userdata($login);
                 echo "OK";
             }
         }
@@ -40,7 +39,7 @@ class Auth extends MY_Controller
     
     public function create_account()
     {
-        $result = $this->board_model_v2->create_account();
+        $result = $this->login_model->create_account();
 
         if ($result === TRUE)
         {
