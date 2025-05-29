@@ -1,7 +1,7 @@
 <?php
 class Board_model extends My_Model
 {
-    public $response = [
+    private $response = [
         'status' => FALSE,
         'message' => NULL
     ];
@@ -19,7 +19,8 @@ class Board_model extends My_Model
 
         $offset = $qs['num'] * ($qs['page'] - 1);
 
-        if ($qs['search'] != NULL) {
+        if ($qs['search'] != NULL) 
+        {
             $this->db->like('title', $qs['search']);
         }
 
@@ -91,17 +92,17 @@ class Board_model extends My_Model
         $this->db->insert(TABLE_BOARD, $data);
         $insert_id = $this->db->insert_id();
 
-        // 쿼리 빌더로 수정
-        return $this->db->set('group_id', $insert_id)
+        return $this->db
+            ->set('group_id', $insert_id)
             ->where('id', $insert_id)
             ->update(TABLE_BOARD);
     }
 
-    public function create_child_board($id)
+    public function create_child_board($parent_id)
     {
         $user_id = $this->session->userdata('id');
 
-        $attributes = ['id' => $id];
+        $attributes = ['id' => $parent_id];
 
         $query = $this->db->get_where(TABLE_BOARD, $attributes);
 
@@ -115,14 +116,14 @@ class Board_model extends My_Model
             'title' => $row['title'],
             'content' => $this->input->post('content'),
             'category' => $row['category'],
-            'parent_id' => $id,
+            'parent_id' => $parent_id,
             'group_id' => $row['group_id'],
             'depth' => $row['depth'] + 1,
             'l_value' => $new_left,
             'r_value' => $new_right,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
-            'status' => 'AVTIVE'
+            'status' => 'ACTIVE'
         ];
 
         $where_attr_left = ['l_value >=' => $new_right, 'group_id' => $row['group_id']];
@@ -133,13 +134,19 @@ class Board_model extends My_Model
             ->where($where_attr_left)
             ->update(TABLE_BOARD);
 
+        log_message('error', $this->db->last_query());
+
         $this->db
             ->set('r_value', 'r_value + 2', FALSE)
             ->where($where_attr_right)
             ->update(TABLE_BOARD);
+        
+        log_message('error', $this->db->last_query());
 
         $this->db->insert(TABLE_BOARD, $data);
+        log_message('error', $this->db->last_query());
         $insert_id = $this->db->insert_id();
+
 
         $this->response['status'] = TRUE;
         $this->response['message'] = '/board/view/' . $insert_id;
@@ -147,12 +154,12 @@ class Board_model extends My_Model
         return $this->response;
     }
 
-    public function update_board($id)
+    public function update_board($board_id)
     {
         
         $user_id = $this->session->userdata('id');
 
-        $data = $this->db->get_where(TABLE_BOARD, ['id' => $id]);
+        $data = $this->db->get_where(TABLE_BOARD, ['id' => $board_id]);
         
         if ($data->num_rows() == 0)
         {
@@ -169,7 +176,7 @@ class Board_model extends My_Model
         }
 
         $where = [
-            'id' => $id,
+            'id' => $board_id,
             'user_id' => $user_id
         ];
 
@@ -183,16 +190,16 @@ class Board_model extends My_Model
             ->update(TABLE_BOARD, $data);
         
         $this->response['status'] = TRUE;
-        $this->response['message'] = '/board/view/' . $id;
+        $this->response['message'] = '/board/view/' . $board_id;
 
         return $this->response;
     }
 
-    public function delete_board($id)
+    public function delete_board($board_id)
     {
         $user_id = $this->session->userdata('id');
 
-        $data = $this->db->get_where(TABLE_BOARD, ['id' => $id]);
+        $data = $this->db->get_where(TABLE_BOARD, ['id' => $board_id]);
         
         if ($data->num_rows() == 0)
         {
@@ -218,7 +225,7 @@ class Board_model extends My_Model
         ];
 
         $where = [
-            'id' => $id,
+            'id' => $board_id,
             'user_id' => $user_id
         ];
 

@@ -22,6 +22,6 @@ class Test extends MY_Controller
             log_message('error', 'test called');
         }
 
-        redirect('/board_v2');
+        redirect('/board');
     }
 }

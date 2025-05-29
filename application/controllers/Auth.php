@@ -4,7 +4,7 @@ class Auth extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('login_model');
+        $this->load->model('auth_model');
     }
 
     public function login()
@@ -18,7 +18,7 @@ class Auth extends MY_Controller
         } 
         else
         {
-            $login = $this->login_model->login();
+            $login = $this->auth_model->login();
             if ($login === FALSE)
             {
                 echo "FAIL";
@@ -39,7 +39,7 @@ class Auth extends MY_Controller
     
     public function create_account()
     {
-        $result = $this->login_model->create_account();
+        $result = $this->auth_model->create_account();
 
         if ($result === TRUE)
         {

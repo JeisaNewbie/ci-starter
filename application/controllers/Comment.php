@@ -7,19 +7,19 @@ class Comment extends MY_Controller
         $this->load->model('comment_model');
     }
 
-    public function get_comment($id, $num = 20, $page = 1)
+    public function get_comment($board_id, $num = 20, $page = 1)
     {
         $query_string = $this->get_qs();
 
         $query_parameters = [
             'like' => NULL,
             'where' => [
-                'board_ns_id' => $id
+                'board_ns_id' => $board_id
             ],
             'table' => TABLE_COMMENT
         ];
 
-        $data['comments'] = $this->comment_model->get_comment($id, $num, $page);
+        $data['comments'] = $this->comment_model->get_comment($board_id, $num, $page);
         $data['num'] = count($data['comments']);
         $data['pages'] = $this->get_pages($query_string, $query_parameters);
 
@@ -28,9 +28,9 @@ class Comment extends MY_Controller
             ->set_output(json_encode($data));
     }
 
-    public function set_comment($id)
+    public function create_comment($board_id)
     {
-        $this->comment_model->set_comment($id);
+        $this->comment_model->create_comment($board_id);
         echo "OK";
     }
 }

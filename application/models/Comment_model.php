@@ -7,10 +7,10 @@ class Comment_model extends My_Model
         // 댓글 삭제시 utils 라이브러리 추가
     }
 
-    public function get_comment($id, $num, $page)
+    public function get_comment($board_id, $num, $page)
     {
         $offset = $num * ($page - 1);
-        $from_to = array($id, $offset, (int)$num);
+        $from_to = array($board_id, $offset, (int)$num);
 
         $query = $this->db->query(
             'SELECT * FROM comment
@@ -25,13 +25,13 @@ class Comment_model extends My_Model
         return $data;
     }
 
-    public function set_comment($id)
+    public function create_comment($board_id)
     {
         $user_id = $this->session->userdata('id');
 
         $data = [
             'user_id' => $user_id,
-            'board_ns_id' => $id,
+            'board_ns_id' => $board_id,
             'comment' => $this->input->post('comment'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),

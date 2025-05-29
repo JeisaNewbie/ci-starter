@@ -1,15 +1,37 @@
 <?php
 class Test_model extends My_Model
 {
-    // const RESPONSE = [
-    //         'status' => FALSE,
-    //         'message' => NULL
-    //     ];
-
     public function __construct()
     {
         $this->load->database();
         $this->load->library('Category');
+    }
+
+    public function do_test()
+    {
+        define('BOARD_NUM', 100);
+        define('USER_ID', 7);
+
+        define('DEPTH_MIN', 0);
+        define('DEPTH_MAX', 5);
+        
+        define('WIDTH_MIN', 0);
+        define('WIDTH_MAX', 5);
+
+        $title = bin2hex(random_bytes(8));
+        $content = bin2hex(random_bytes(8));
+
+        for ($i = 0; $i <= BOARD_NUM; $i++)
+        {
+            $id = $this->set_board_test(USER_ID, $title, $content);
+            $depth = rand(DEPTH_MIN, DEPTH_MAX);
+            $this->back_tracking($id, 0, $depth);
+        }
+    }
+
+    public function do_delete()
+    {
+        $this->db->empty_table('board_ns');
     }
 
     private function set_board_test($user_id, $title, $content)
@@ -37,7 +59,7 @@ class Test_model extends My_Model
         return $insert_id;
     }
 
-    public function set_content_test($user_id, $id, $content)
+    private function set_content_test($user_id, $id, $content)
     {
         $attributes = ['id' => $id];
 
@@ -96,30 +118,5 @@ class Test_model extends My_Model
         }
     }
 
-    public function do_test()
-    {
-        define('BOARD_NUM', 100);
-        define('USER_ID', 7);
 
-        define('DEPTH_MIN', 0);
-        define('DEPTH_MAX', 5);
-        
-        define('WIDTH_MIN', 0);
-        define('WIDTH_MAX', 5);
-
-        $title = bin2hex(random_bytes(8));
-        $content = bin2hex(random_bytes(8));
-
-        for ($i = 0; $i <= BOARD_NUM; $i++)
-        {
-            $id = $this->set_board_test(USER_ID, $title, $content);
-            $depth = rand(DEPTH_MIN, DEPTH_MAX);
-            $this->back_tracking($id, 0, $depth);
-        }
-    }
-
-    public function do_delete()
-    {
-        $this->db->empty_table('board_ns');
-    }
 }

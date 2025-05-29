@@ -38,9 +38,9 @@ class Board extends MY_Controller
     }
 
     /* 게시글 상세 페이지 */
-    public function view($id)
+    public function view($board_id)
     {
-        $data['board'] = $this->board_model->get_board_view($id);
+        $data['board'] = $this->board_model->get_board_view($board_id);
 
         if (empty($data['board']))
         {
@@ -68,9 +68,9 @@ class Board extends MY_Controller
     }
 
     /* 답글 생성 */
-    public function create_child_board($id)
+    public function create_child_board($parent_id)
     {
-        $response = $this->board_model->create_child_board($id);
+        $response = $this->board_model->create_child_board($parent_id);
 
         $this->output
             ->set_content_type('application/json')
@@ -78,8 +78,8 @@ class Board extends MY_Controller
     }
 
     /* 게시글 & 답글 수정 */
-    public function update_board($id) {
-        $response = $this->board_model->update_board($id);
+    public function update_board($board_id) {
+        $response = $this->board_model->update_board($board_id);
 
         $this->output
             ->set_content_type('application/json')
@@ -87,9 +87,9 @@ class Board extends MY_Controller
     }
 
     /* 게시글 & 답글 삭제 */
-    public function delete($id)
+    public function delete_board($board_id)
     {
-        $response = $this->board_model->delete_board($id);
+        $response = $this->board_model->delete_board($board_id);
         
         $this->output
             ->set_content_type('application/json')

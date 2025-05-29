@@ -1,5 +1,5 @@
 <?php
-class Login_model extends My_Model
+class Auth_model extends My_Model
 {
     public function __construct()
     {
