@@ -47,8 +47,6 @@
         <div id="write_btn">
           <a href="/board/create_board"><button>글쓰기</button></a>
         </div>
-      <?php else: ?>
-        <div></div>
       <?php endif; ?>
       <?php if ($username): ?>
         <div id="write_btn">
@@ -96,8 +94,7 @@
     <button onclick="return search()">검색</button>
   </div>
   <div id="write_btn" class="btx_box">
-    <?php if ($pages['before'] === NULL): ?>
-    <?php else: ?>
+    <?php if ($pages['before'] !== NULL): ?>
       <button onclick="return before()">이전</button>
     <?php endif; ?>
     <?php
@@ -109,8 +106,7 @@
       echo "<a href=\"/board/index?category=$category&search=$search&num=$num&page=$i\" style=\"color: #4285F4\">$i </a>";
     }
     ?>
-    <?php if ($pages['after'] === NULL): ?>
-    <?php else: ?>
+    <?php if ($pages['after'] !== NULL): ?>
       <button onclick="return after()">다음</button>
     <?php endif; ?>
   </div>

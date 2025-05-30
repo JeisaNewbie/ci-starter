@@ -7,7 +7,7 @@ class Comment extends MY_Controller
         $this->load->model('comment_model');
     }
 
-    public function get_comment($board_id, $num = 20, $page = 1)
+    public function get_comment($board_id)
     {
         $query_string = $this->get_qs();
 
@@ -19,10 +19,12 @@ class Comment extends MY_Controller
             'table' => TABLE_COMMENT
         ];
 
-        $data['comments'] = $this->comment_model->get_comment($board_id, $num, $page);
+        $data['comments'] = $this->comment_model->get_comment($board_id, $query_string['num'], $query_string['page']);
         $data['num'] = count($data['comments']);
         $data['pages'] = $this->get_pages($query_string, $query_parameters);
-
+        $data['pages']['current_page'] = $query_string['page'];
+        $data['pages']['total_data'] -= 10 * ($query_string['page'] - 1);
+        $data['id'] = $board_id;
         $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode($data));

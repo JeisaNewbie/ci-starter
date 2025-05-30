@@ -88,3 +88,9 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 define ('TABLE_USER', 'users');
 define ('TABLE_BOARD', 'board_ns');
 define ('TABLE_COMMENT', 'comment');
+
+/* Route Prefix */
+define('BOARD_PREFIX', 'board');
+define('COMMENT_PREFIX', 'comment');
+define('AUTH_PREFIX', 'auth');
+define('TEST_PREFIX', 'test');

@@ -48,16 +48,6 @@
         <?php else: ?>
           <div></div>
         <?php endif; ?>
-        <!-- <div class="middle-left">
-          <form action="<?= site_url('board') ?>" method="post" style="display:inline;">
-            <button type="submit">이전 답글</button>
-          </form>
-        </div>
-        <div class="middle-right">
-          <form action="<?= site_url('board') ?>" method="post" style="display:inline;">
-            <button type="submit">다음 답글</button>
-          </form>
-        </div> -->
         <div class="right">
           <?php if ($username): ?>
             <button onclick="return submit_content(<?= $id ?>);">답글 달기</button>
@@ -67,9 +57,9 @@
         </div>
       </div>
     </div>
-    <!-- <hr style="margin: 20px auto 20px auto;"> -->
     <div class="post-container-comment">
-      <button onclick="return open_comment(<?= $id ?>, 10, 1, <?= $username != null ? 1 : null ?>);">댓글창 열기</button>
+      <!-- onclick="return open_comment(<?= $id ?>, 10, 1, <?= $username != null ? 1 : null ?>);" -->
+      <button id="open_comment_btx" data-id= <?= $id ?> data-username= <?= $username ?>>댓글창 열기</button>
       <button onclick="return close_comment();">댓글창 닫기</button>
       <?php if ($username): ?>
         <button onclick="return update_content(<?= $id ?>);" type="button">수정</button>

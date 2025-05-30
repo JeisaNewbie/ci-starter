@@ -134,17 +134,13 @@ class Board_model extends My_Model
             ->where($where_attr_left)
             ->update(TABLE_BOARD);
 
-        log_message('error', $this->db->last_query());
-
         $this->db
             ->set('r_value', 'r_value + 2', FALSE)
             ->where($where_attr_right)
             ->update(TABLE_BOARD);
         
-        log_message('error', $this->db->last_query());
 
         $this->db->insert(TABLE_BOARD, $data);
-        log_message('error', $this->db->last_query());
         $insert_id = $this->db->insert_id();
 
 

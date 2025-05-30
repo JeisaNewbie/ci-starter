@@ -39,5 +39,10 @@ class Comment_model extends My_Model
         ];
 
         $this->db->insert(TABLE_COMMENT, $data);
+        // $insert_id = $this->db->insert_id();
+        // $this->db->where('id', $insert_id);
+        // $query = $this->db->get(TABLE_COMMENT);
+        // $inserted_data = $query->row_array();   
+        // return $inserted_data;
     }
 }
