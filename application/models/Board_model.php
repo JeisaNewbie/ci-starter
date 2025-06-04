@@ -108,7 +108,7 @@ class Board_model extends My_Model
 
         $row = $query->row_array();
 
-        $new_left = $row['r_value'];
+        $new_left = (int)$row['r_value'];
         $new_right = $new_left + 1;
 
         $data = [
@@ -126,19 +126,18 @@ class Board_model extends My_Model
             'status' => 'ACTIVE'
         ];
 
-        $where_attr_left = ['l_value >=' => $new_right, 'group_id' => $row['group_id']];
         $where_attr_right = ['r_value >=' => $new_left, 'group_id' => $row['group_id']];
-
-        $this->db
-            ->set('l_value', 'l_value + 2', FALSE)
-            ->where($where_attr_left)
-            ->update(TABLE_BOARD);
+        $where_attr_left = ['l_value >=' => $new_right, 'group_id' => $row['group_id']];
 
         $this->db
             ->set('r_value', 'r_value + 2', FALSE)
             ->where($where_attr_right)
             ->update(TABLE_BOARD);
-        
+
+        $this->db
+            ->set('l_value', 'l_value + 2', FALSE)
+            ->where($where_attr_left)
+            ->update(TABLE_BOARD);
 
         $this->db->insert(TABLE_BOARD, $data);
         $insert_id = $this->db->insert_id();

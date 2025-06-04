@@ -117,6 +117,4 @@ class Test_model extends My_Model
             $this->back_tracking($id, $cur_depth + 1, $depth);
         }
     }
-
-
 }

@@ -11,8 +11,6 @@
 
 <body>
     <div class="wrapper">
-
-
         <div>
             <label for="id">ID:</label>
             <input type="text" name="id" id="id">

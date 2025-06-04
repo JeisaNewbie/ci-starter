@@ -7,8 +7,6 @@ class Board extends MY_Controller
         $this->load->model('board_model');
     }
 
-    // ToDo: 코드 정리
-    /* 자유게시판 목록 페이지 */
     public function index()
     {
         $query_string = $this->get_qs();
